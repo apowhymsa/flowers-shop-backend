@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apowhymsa/poster-shop-backend.git"
+    "url": "git+https://github.com/apowhymsa/flowers-shop-backend.git"
   },
   "keywords": [
     "backend",
@@ -17,9 +17,8 @@
   "author": "apowhymsa@gmail.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/apowhymsa/poster-shop-backend/issues"
+    "url": "https://github.com/apowhymsa/flowers-shop-backend/issues"
   },
-  "homepage": "https://github.com/apowhymsa/poster-shop-backend#readme",
   "devDependencies": {
     "@types/body-parser": "^1.19.4",
     "@types/compression": "^1.7.4",
