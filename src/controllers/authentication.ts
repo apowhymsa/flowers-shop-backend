@@ -1,7 +1,18 @@
 import express from "express";
-import {createUser, getUserByEmail, getUserByPhone} from "../database/schemes/users";
+import {createUser, getUserByEmail, getUserByPhone, getUserBySessionToken} from "../database/schemes/users";
 import {authentication, random} from "../helpers";
 
+export const logout = async (req: express.Request, res: express.Response) => {
+    try {
+        console.log(req.cookies);
+        // res.clearCookie('USER-AUTH', {domain: 'localhost'});
+
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
 export const login = async (req: express.Request, res: express.Response) => {
     try {
         const {email, password} = req.body;
@@ -13,13 +24,13 @@ export const login = async (req: express.Request, res: express.Response) => {
         const user = await getUserByEmail(email).select('+authentication.salt +authentication.password');
 
         if (!user) {
-            return res.sendStatus(400);
+            return res.sendStatus(404);
         }
 
         const expectedHash = authentication(user.authentication.salt, password);
 
         if (user.authentication.password !== expectedHash) {
-            return res.sendStatus(400);
+            return res.sendStatus(401);
         }
 
         const salt = random();
@@ -47,20 +58,15 @@ export const register = async (req: express.Request, res: express.Response) => {
         const existingUserByPhone = await getUserByPhone(phoneNumber);
 
         if (existingUserByPhone) {
-            return res.sendStatus(400);
+            return res.sendStatus(409);
         }
 
         const salt = random();
         const user = await createUser({
-            email,
-            personals: {
-                fullName,
-                phoneNumber,
-                avatar
-            },
-            authentication: {
-                password: authentication(salt, password),
-                salt,
+            email, personals: {
+                fullName, phoneNumber, avatar
+            }, authentication: {
+                password: authentication(salt, password), salt,
             }
         });
 
