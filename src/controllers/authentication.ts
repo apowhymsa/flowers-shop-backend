@@ -4,9 +4,6 @@ import {authentication, random} from "../helpers";
 
 export const logout = async (req: express.Request, res: express.Response) => {
     try {
-        console.log(req.cookies);
-        // res.clearCookie('USER-AUTH', {domain: 'localhost'});
-
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
@@ -40,7 +37,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
         res.cookie('USER-AUTH', user.authentication.sessionToken, {domain: 'localhost'});
 
-        return res.status(200).json(user).end();
+        return res.status(200).json({_id: user.toObject()._id, email: user.toObject().email, personals: user.toObject().personals}).end();
     } catch (error) {
         console.log(error);
         return res.sendStatus(500)
