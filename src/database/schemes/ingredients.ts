@@ -6,7 +6,11 @@ const IngredientSchema = new mongoose.Schema({
     variants: [{
         vType: {type: String, required: true},
         price: {type: String, required: true},
-        count: {type: String, required: true}
+        count: {type: String, required: true},
+        discount: {
+            state: {type: Boolean, required: false},
+            amount: {type: String, required: false}
+        }
     }]
 });
 

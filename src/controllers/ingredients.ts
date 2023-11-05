@@ -40,7 +40,7 @@ export const getByCategoryId = async (req: express.Request, res: express.Respons
 export const updateById = async (req: express.Request, res: express.Response) => {
     try {
         const {id} = req.params;
-        const { title, categoryID, variants } = req.body;
+        const { title, categoryID, variants,  } = req.body;
 
         if (!id || !title || !categoryID || !variants) {
             return res.sendStatus(403);
@@ -59,7 +59,7 @@ export const updateById = async (req: express.Request, res: express.Response) =>
         return res.sendStatus(500);
     }
 }
-export const getAllIngredients = async (req: express.Request, res: express.Response) => {
+export const getAll = async (req: express.Request, res: express.Response) => {
     try {
         const ingredients = await getIngredients();
 

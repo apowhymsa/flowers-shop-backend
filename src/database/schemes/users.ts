@@ -26,5 +26,5 @@ export const getUserByPhone = (phoneNumber: string) => UserModel.findOne({
     'personals.phoneNumber': phoneNumber
 })
 export const createUser = (values: Record<string, any>) => new UserModel(values).save().then(user => user.toObject());
-export const updateUserById = (id: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(id, values);
+export const updateUserById = (id: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(id, values, {new: true});
 export const deleteUserById = (id: string) => UserModel.findByIdAndDelete(id);
