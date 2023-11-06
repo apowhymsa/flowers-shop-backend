@@ -5,6 +5,7 @@ import {
     getIngredients, getIngredientsByCategoryId,
     updateIngredientById
 } from "../database/schemes/ingredients";
+import {result} from "lodash";
 
 
 export const deleteById = async (req: express.Request, res: express.Response) => {

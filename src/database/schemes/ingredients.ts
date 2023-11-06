@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
 
 const IngredientSchema = new mongoose.Schema({
     title: {type: String, required: true},
-    categoryID: {type: String, required: true}, // text: 30sm price of each count of each
+    categoryID: {type: Schema.Types.ObjectId, ref: 'IngredientCategory', required: true},
     variants: [{
         vType: {type: String, required: true},
         price: {type: String, required: true},
