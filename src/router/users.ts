@@ -4,6 +4,6 @@ import {isAuthenticated} from "../middlewares";
 
 export default (router: express.Router) => {
     router.get('/users/:email', getByEmail);
-    router.get('/users', isAuthenticated, getAll);
+    router.get('/users', getAll);
     router.delete('/users/:id', deleteById);
 }

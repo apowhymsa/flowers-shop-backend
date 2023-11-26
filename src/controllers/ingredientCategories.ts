@@ -2,7 +2,7 @@ import express from "express";
 import {
     createIngredientCategory, deleteIngredientCategoryById,
     getIngredientCategories,
-    getIngredientCategoryById, updateIngredientCategoryById
+    getIngredientCategoryById, getIngredientCategoryByTitle, updateIngredientCategoryById
 } from "../database/schemes/ingredientCategories";
 
 export const updateById = async (req: express.Request, res: express.Response) => {
@@ -12,6 +12,12 @@ export const updateById = async (req: express.Request, res: express.Response) =>
 
         if (!id || !title) {
             return res.sendStatus(403);
+        }
+
+        const foundIngredientCategory = await getIngredientCategoryByTitle(title);
+
+        if (foundIngredientCategory.id !== id) {
+            return res.sendStatus(409);
         }
 
         const ingredientCategory = await updateIngredientCategoryById(id, {
@@ -72,6 +78,12 @@ export const create = async (req: express.Request, res: express.Response) => {
 
         if (!title) {
             return res.sendStatus(403);
+        }
+
+        const foundIngredientCategory = await getIngredientCategoryByTitle(title);
+
+        if (foundIngredientCategory) {
+            return res.sendStatus(409);
         }
 
         const ingredientCategory = await createIngredientCategory({

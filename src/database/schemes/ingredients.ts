@@ -5,13 +5,17 @@ const IngredientSchema = new mongoose.Schema({
     categoryID: {type: Schema.Types.ObjectId, ref: 'IngredientCategory', required: true},
     variants: [{
         vType: {type: String, required: true},
-        price: {type: String, required: true},
+        // price: {type: String, required: true},
         count: {type: String, required: true},
-        discount: {
-            state: {type: Boolean, required: false},
-            amount: {type: String, required: false}
-        }
-    }]
+        // discount: {
+        //     state: {type: Boolean, required: false},
+        //     amount: {type: String, required: false}
+        // }
+    }],
+    image: {
+        data: {type: String, required: true},
+        name: {type: String, required: true}
+    }
 });
 
 export const IngredientModel = mongoose.model('Ingredient', IngredientSchema);
