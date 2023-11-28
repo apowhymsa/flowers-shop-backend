@@ -4,13 +4,7 @@ const IngredientSchema = new mongoose.Schema({
     title: {type: String, required: true},
     categoryID: {type: Schema.Types.ObjectId, ref: 'IngredientCategory', required: true},
     variants: [{
-        vType: {type: String, required: true},
-        // price: {type: String, required: true},
-        count: {type: String, required: true},
-        // discount: {
-        //     state: {type: Boolean, required: false},
-        //     amount: {type: String, required: false}
-        // }
+        id: {type: Schema.Types.ObjectId, ref: 'IngredientVariant', required: true}
     }],
     image: {
         data: {type: String, required: true},

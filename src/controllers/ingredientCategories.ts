@@ -16,8 +16,10 @@ export const updateById = async (req: express.Request, res: express.Response) =>
 
         const foundIngredientCategory = await getIngredientCategoryByTitle(title);
 
-        if (foundIngredientCategory.id !== id) {
-            return res.sendStatus(409);
+        if (foundIngredientCategory) {
+            if (foundIngredientCategory.id !== id) {
+                return res.sendStatus(409);
+            }
         }
 
         const ingredientCategory = await updateIngredientCategoryById(id, {

@@ -8,9 +8,9 @@ import {create, deleteById, getAll, getByCategoryId, getById, updateById} from "
 const storage = multer.diskStorage({
     destination: './uploads/', // Папка, куда сохранять загруженные файлы
     filename: function (req, file, cb) {
-        // cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
         // console.log(file.originalname, file.filename);
-        cb(null, file.originalname);
+        // cb(null, file.originalname);
     },
 });
 

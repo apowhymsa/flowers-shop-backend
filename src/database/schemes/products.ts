@@ -8,12 +8,16 @@ const ProductSchema = new mongoose.Schema({
         state: {type: Boolean, required: true},
         percent: {type: String, required: true}
     },
+    image: {
+        data: {type: String, required: true},
+        name: {type: String, required: true}
+    },
     variants: [{
         title: {type: String, required: true},
         ingredients: [{
             ingredient: {
                 id: {type: Schema.Types.ObjectId, ref: 'Ingredient', required: true},
-                variantID: {type: String, required: true}
+                variantID: {type: Schema.Types.ObjectId, ref: 'IngredientVariant', required: true}
             },
             count: {type: String, required: true}
         }]
