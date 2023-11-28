@@ -15,7 +15,7 @@ import router from "./router";
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://clumba-web-shop.vercel.app',
     credentials: true
 }))
 
