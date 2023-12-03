@@ -76,7 +76,7 @@ export const updateById = async (req: express.Request, res: express.Response) =>
             }
         });
 
-        return res.status(200).json({}).end();
+        return res.status(200).json(productCategory).end();
     } catch (error) {
         console.log(error);
         return res.sendStatus(500);

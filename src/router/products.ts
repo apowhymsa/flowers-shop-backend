@@ -1,5 +1,5 @@
 import express from "express";
-import {create, deleteById, getAll} from "../controllers/products";
+import {create, deleteById, getAll, getById, updateById} from "../controllers/products";
 import multer from "multer";
 import path from "path";
 
@@ -15,7 +15,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 export default (router: express.Router) => {
+    router.get('/product/:id', getById);
     router.get('/products', getAll);
     router.put('/product', upload.single('image'), create);
+    router.put('/product/:id', upload.single('image'),  updateById);
     router.delete('/product/:id', deleteById);
 }

@@ -132,7 +132,7 @@ export const updateById = async (req: express.Request, res: express.Response) =>
                 name: req.file.originalname,
                 data: `data:${req.file.mimetype};base64,${base64Image}`
             }
-        });
+        }).populate(['categoryID', 'variants.id']).exec();
 
         return res.status(200).json(ingredient).end();
 

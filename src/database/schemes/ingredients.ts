@@ -21,6 +21,6 @@ export const getIngredientsByCategoryId = (cId: string) => IngredientModel.find(
 // export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({
 //     'authentication.sessionToken': sessionToken
 // });
-export const createIngredient = (values: Record<string, any>) => new IngredientModel(values).save().then(ingredient => ingredient.toObject());
+export const createIngredient = (values: Record<string, any>) => new IngredientModel(values).save().then(ingredient => ingredient.populate(['categoryID', 'variants.id']));
 export const updateIngredientById = (id: string, values: Record<string, any>) => IngredientModel.findByIdAndUpdate(id, values, {new: true});
 export const deleteIngredientById = (id: string) => IngredientModel.findByIdAndDelete(id);
