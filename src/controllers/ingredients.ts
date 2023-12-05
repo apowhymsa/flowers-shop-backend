@@ -11,6 +11,9 @@ import {
     deleteIngredientVariantById,
     getIngredientVariantById, updateIngredientVariantById
 } from "../database/schemes/ingredientVariants";
+import path from "path";
+import fs from "fs/promises";
+import {getProductCategoryById} from "../database/schemes/productCategories";
 
 export const deleteById = async (req: express.Request, res: express.Response) => {
     try {
@@ -21,6 +24,10 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
         }
 
         const deletedIngredient = await deleteIngredientById(id);
+        const imageName = deletedIngredient.toObject().image;
+        const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
+        await fs.unlink(imagePath).then(() => console.log('deleted'));
+
         return res.status(200).json(deletedIngredient).end();
     } catch (error) {
         console.log(error);
@@ -66,9 +73,7 @@ export const getByCategoryId = async (req: express.Request, res: express.Respons
 export const updateById = async (req: express.Request, res: express.Response) => {
     try {
         const {id} = req.params;
-        const { title, categoryID, variants} = req.body;
-        const image = req.file.path;
-
+        const { title, categoryID, variants, isNewImage, image} = req.body;
 
         if (!id || !title || !categoryID || !variants) {
             return res.sendStatus(403);
@@ -120,18 +125,20 @@ export const updateById = async (req: express.Request, res: express.Response) =>
 
         console.log(variantIDs);
 
-        // Прочитать изображение как Base64
-        const imageBuffer = require('fs').readFileSync(image);
-        const base64Image = imageBuffer.toString('base64');
+        if (isNewImage) {
+            const ingredient = await getIngredientById(id);
+            const imageName = ingredient.toObject().image;
+
+            const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
+
+            await fs.unlink(imagePath).then(() => console.log('deleted'));
+        }
 
         const ingredient = await updateIngredientById(id, {
             title,
             categoryID,
             variants: variantIDs,
-            image: {
-                name: req.file.originalname,
-                data: `data:${req.file.mimetype};base64,${base64Image}`
-            }
+            image: isNewImage ? req.file.filename : image
         }).populate(['categoryID', 'variants.id']).exec();
 
         return res.status(200).json(ingredient).end();
@@ -174,10 +181,6 @@ export const create = async (req: express.Request, res: express.Response) => {
             });
         }
 
-        // Прочитать изображение как Base64
-        const imageBuffer = require('fs').readFileSync(image);
-        const base64Image = imageBuffer.toString('base64');
-
         const foundIngredient = await getIngredientByTitle(title);
 
         if (foundIngredient) {
@@ -188,10 +191,7 @@ export const create = async (req: express.Request, res: express.Response) => {
             title,
             categoryID,
             variants: variantIDs,
-            image: {
-                name: req.file.originalname,
-                data: `data:${req.file.mimetype};base64,${base64Image}`
-            }
+            image: req.file.filename
         });
 
         return res.status(200).json(ingredient).end();

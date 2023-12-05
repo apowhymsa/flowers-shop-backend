@@ -4,6 +4,9 @@ import {
     getProductCategories, getProductCategoryById, getProductCategoryByTitle,
     updateProductCategoryById
 } from "../database/schemes/productCategories";
+import {getProductById} from "../database/schemes/products";
+import path from "path";
+import * as fs from "fs/promises";
 
 export const getById = async (req: express.Request, res: express.Response) => {
     try {
@@ -39,6 +42,10 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
         }
 
         const productCategory = await deleteProductCategoryById(id);
+        const imageName = productCategory.toObject().image;
+        const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
+        await fs.unlink(imagePath).then(() => console.log('deleted'));
+
         return res.status(200).json(productCategory).end();
     } catch (error) {
         console.log(error);
@@ -48,10 +55,12 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
 export const updateById = async (req: express.Request, res: express.Response) => {
     try {
         const {id} = req.params;
-        const {title} = req.body;
-        const image = req.file.path;
+        const {title, isNewImage, image} = req.body;
+        // const image = req.file.path;
 
-        if (!id || !title || !image) {
+        console.log(title, isNewImage, image);
+
+        if (!id || !title) {
             return res.sendStatus(403);
         }
 
@@ -63,17 +72,18 @@ export const updateById = async (req: express.Request, res: express.Response) =>
             }
         }
 
-        // Прочитать изображение как Base64
-        const imageBuffer = require('fs').readFileSync(image);
-        const base64Image = imageBuffer.toString('base64');
-        console.log(req.file);
+        if (isNewImage) {
+            const productCategory = await getProductCategoryById(id);
+            const imageName = productCategory.toObject().image;
+
+            const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
+
+            await fs.unlink(imagePath).then(() => console.log('deleted'));
+        }
 
         const productCategory = await updateProductCategoryById(id, {
             title,
-            image: {
-                name: req.file.originalname,
-                data: `data:${req.file.mimetype};base64,${base64Image}`
-            }
+            image: isNewImage ? req.file.filename : image
         });
 
         return res.status(200).json(productCategory).end();
@@ -97,17 +107,9 @@ export const create = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(409);
         }
 
-        // Прочитать изображение как Base64
-        const imageBuffer = require('fs').readFileSync(image);
-        const base64Image = imageBuffer.toString('base64');
-        console.log(req.file);
-
         const productCategory = await createProductCategory({
             title,
-            image: {
-                name: req.file.originalname,
-                data: `data:${req.file.mimetype};base64,${base64Image}`
-            }
+            image: req.file.filename
         });
 
         return res.status(200).json(productCategory).end();

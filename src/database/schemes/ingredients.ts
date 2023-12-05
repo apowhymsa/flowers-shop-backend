@@ -6,10 +6,7 @@ const IngredientSchema = new mongoose.Schema({
     variants: [{
         id: {type: Schema.Types.ObjectId, ref: 'IngredientVariant', required: true}
     }],
-    image: {
-        data: {type: String, required: true},
-        name: {type: String, required: true}
-    }
+    image: {type: String, required: true}
 });
 
 export const IngredientModel = mongoose.model('Ingredient', IngredientSchema);
