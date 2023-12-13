@@ -17,7 +17,8 @@ const app = express();
 
 app.use(cors({
     // origin: 'https://clumba-web-shop.vercel.app',
-    origin: ['http://localhost:3000', 'https://poster-shop-server.onrender.com'],
+    // origin: ['http://localhost:3000', 'https://poster-shop-server.onrender.com'],
+    origin: '*',
     credentials: true
 }))
 
