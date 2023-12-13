@@ -96,6 +96,7 @@ export const callbackResult = async (req: express.Request, res: express.Response
     const reqSignature = req.body.signature;
 
     console.log('reqSignature', reqSignature);
+    console.log('encodedData', encodedData);
     const decodedData = Buffer.from(encodedData, "base64").toString("utf-8");
 
     const { payment_id, status, info, order_id, amount, description } =
