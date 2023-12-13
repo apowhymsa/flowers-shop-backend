@@ -8,6 +8,7 @@ import products from "./products";
 import images from "./images";
 import comments from "./comments";
 import orders from "./orders";
+import payment from "./payment";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ export default (): express.Router => {
     images(router);
     comments(router);
     orders(router);
+    payment(router);
 
     return router;
 }
