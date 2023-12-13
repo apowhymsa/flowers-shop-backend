@@ -55,8 +55,8 @@ export const createPaymentURL = async (req: express.Request, res: express.Respon
         }),
         public_key: process.env.LIQPAY_PUBLIC_KEY,
         // private_key: process.env.LIQPAY_PRIVATE_KEY,
-        server_url: "https://poster-shop-server.onrender.com/payment/callback",
-        result_url: "https://poster-shop-server.onrender.com/result",
+        server_url: "https://flowers-shop-backend.onrender.com/payment/callback",
+        result_url: "https://flowers-shop-backend.onrender.com/result",
     };
 
     const data = Buffer.from(JSON.stringify(params)).toString("base64");
