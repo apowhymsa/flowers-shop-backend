@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
 
 const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
@@ -11,12 +11,18 @@ const UserSchema = new mongoose.Schema({
         password: {type: String, required: true, select: false},
         salt: {type: String, select: false},
         sessionToken: {type: String, select: false},
-    }
+    },
+    cart: [{
+        product: {type: Schema.Types.ObjectId, ref: 'Product'},
+        quantity: {type: Number},
+        variant: {type: Object}
+    }]
 });
 
 export const UserModel = mongoose.model('User', UserSchema);
 
 export const getUsers = () => UserModel.find({});
+export const setCart = (id: string, values: Record<any, any>) => UserModel.findByIdAndUpdate(id, values, {new: true});
 export const getUserByEmail = (email: string) => UserModel.findOne({email});
 export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({
     'authentication.sessionToken': sessionToken

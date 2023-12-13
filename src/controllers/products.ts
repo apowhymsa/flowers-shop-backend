@@ -4,7 +4,7 @@ import {
     deleteProductById,
     getProductById,
     getProductByTitle,
-    getProducts, updateProductById
+    getProducts, getProductsByCategoryId, getProductsByTitleIncludes, updateProductById
 } from "../database/schemes/products";
 import {getIngredientById} from "../database/schemes/ingredients";
 import path from "path";
@@ -81,9 +81,54 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
         return res.sendStatus(500);
     }
 }
-export const getAll = async (req: express.Request, res: express.Response) => {
+
+export const getByCategoryId = async (req: express.Request, res: express.Response) => {
+    const {categoryID} = req.params;
+
     try {
-        const products = await getProducts().populate(['categoryID']).exec();
+        const products = await getProductsByCategoryId(categoryID).limit(15);
+
+        return res.status(200).json(products);
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
+
+export const searchByTitleIncludes = async (req: express.Request, res: express.Response) => {
+    const {includes} = req.query;
+
+    if (!includes) {
+        return res.sendStatus(403);
+    }
+
+    const foundProducts = await getProductsByTitleIncludes(includes.toString());
+
+    return res.status(200).json(foundProducts);
+}
+
+export const getNew = async (req: express.Request, res: express.Response) => {
+    const {limit} = req.query;
+
+    try {
+        const newProducts = await getProducts().sort({_id: -1}).limit(Number(limit) || 15);
+
+        return res.status(200).json(newProducts);
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
+export const getAll = async (req: express.Request, res: express.Response) => {
+    const {limit} = req.query;
+    try {
+        let products = null;
+        if (limit) {
+            products = await getProducts().limit(Number(limit)).populate(['categoryID']).exec();
+        } else {
+            products = await getProducts().populate(['categoryID']).exec();
+        }
+
 
         const formatMemoryUsage = (data: any) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`;
         const memoryData = process.memoryUsage();

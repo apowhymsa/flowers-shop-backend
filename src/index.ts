@@ -11,12 +11,13 @@ import compression from 'compression';
 import cors from 'cors';
 import * as process from "process";
 import router from "./router";
+import fs from "fs";
 
 const app = express();
 
 app.use(cors({
-    origin: 'https://clumba-web-shop.vercel.app',
-    // origin: 'http://localhost:3000',
+    // origin: 'https://clumba-web-shop.vercel.app',
+    origin: ['http://localhost:3000', 'https://poster-shop-server.onrender.com'],
     credentials: true
 }))
 

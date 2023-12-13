@@ -24,9 +24,10 @@ const ProductSchema = new mongoose.Schema({
 export const ProductModel = mongoose.model('Product', ProductSchema);
 //'variants.ingredients.ingredient.id', 'variants.ingredients.ingredient.variantID'
 export const getProducts = () => ProductModel.find({});
-// export const getProductCategoryById = (id: string) => ProductCategoryModel.findById(id);
+export const getProductsByCategoryId = (id: string) => ProductModel.find({categoryID: id});
 export const getProductById = (id: string) => ProductModel.findById(id);
 export const getProductByTitle = (title: string) => ProductModel.findOne({title});
+export const getProductsByTitleIncludes = (searchTitle: string) => ProductModel.find({title: {$regex: searchTitle, $options: 'i'}})
 export const createProduct = (values: Record<string, any>) => new ProductModel(values).save().then(product => product.populate(['categoryID']));
 export const updateProductById = (id: string, values: Record<string, any>) => ProductModel.findByIdAndUpdate(id, values, {new: true});
 export const deleteProductById = (id: string) => ProductModel.findByIdAndDelete(id);
