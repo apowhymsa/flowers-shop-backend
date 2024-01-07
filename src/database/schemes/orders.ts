@@ -40,3 +40,5 @@ export const getUserOrders = (id: string) => OrderModel.find({ userID: id });
 export const getOrderById = (id: string) => OrderModel.findById(id);
 export const createOrder = (values: Record<any, any>) =>
   new OrderModel(values).save().then((order) => order.toObject());
+export const updateOrderStatusById = (id: string, status: string) =>
+  OrderModel.findByIdAndUpdate(id, { status: status });

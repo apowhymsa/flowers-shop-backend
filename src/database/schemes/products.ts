@@ -7,6 +7,7 @@ const ProductSchema = new mongoose.Schema({
     ref: "ProductCategory",
     required: true,
   },
+  isAvailable: { type: Boolean },
   image: { type: String, required: true },
   variants: [
     {

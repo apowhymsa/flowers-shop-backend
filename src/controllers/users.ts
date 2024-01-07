@@ -7,6 +7,7 @@ import {
   setCart,
   getUserByPhone,
 } from "../database/schemes/users";
+import { ProductModel } from "../database/schemes/products";
 import { authentication, random } from "../helpers";
 
 export const updateById = async (
@@ -108,7 +109,20 @@ export const getById = async (req: express.Request, res: express.Response) => {
   }
 
   try {
-    const user = await getUserById(id).populate(["cart.product"]);
+    const user = await getUserById(id).populate({
+      path: "cart.product",
+      model: ProductModel, // Замените Product на ваш объект модели Product
+      populate: [
+        {
+          path: "variants.ingredients.ingredient.id",
+          model: "Ingredient", // Замените Ingredient на ваш объект модели Ingredient
+        },
+        {
+          path: "variants.ingredients.ingredient.variantID",
+          model: "IngredientVariant", // Замените Ingredient на ваш объект модели Ingredient
+        },
+      ],
+    });
 
     return res.status(200).json(user);
   } catch (error) {

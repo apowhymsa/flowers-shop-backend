@@ -14,6 +14,7 @@ import router from "./router";
 import fs from "fs";
 import { Server } from "socket.io";
 import { OrderModel } from "./database/schemes/orders";
+import { startMailing } from "./helpers";
 
 const app = express();
 

@@ -4,9 +4,28 @@ import {
   getOrders,
   getOrderById,
   getUserOrders,
+  updateOrderStatusById,
 } from "../database/schemes/orders";
 
 import { ProductModel } from "../database/schemes/products";
+
+export const update = async (req: express.Request, res: express.Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!id || !status) {
+    return res.sendStatus(403);
+  }
+
+  try {
+    const updatedOrder = await updateOrderStatusById(id, status);
+
+    return res.status(200).json(updatedOrder);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+};
 
 export const create = async (req: express.Request, res: express.Response) => {
   const {

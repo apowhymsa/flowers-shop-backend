@@ -3,6 +3,11 @@ import express from "express";
 import axios from "axios";
 import { createOrder } from "../database/schemes/orders";
 import moment from "moment-timezone";
+import {
+  getProductById,
+  updateProductById,
+} from "../database/schemes/products";
+import { updateIngredientVariantById } from "../database/schemes/ingredientVariants";
 
 const str_to_sign = function str_to_sign(str: string) {
   if (typeof str !== "string") {
@@ -138,11 +143,39 @@ export const callbackResult = async (
     };
 
     try {
+      const result = orderParams.products.map(async (pObject: any) => {
+        const product = await getProductById(pObject.product_id)
+          .populate([
+            "categoryID",
+            "variants.ingredients.ingredient.id",
+            "variants.ingredients.ingredient.variantID",
+          ])
+          .exec();
+
+        const tmp = product.variants.map((pVariant: any) => {
+          if (pVariant.id === pObject.productVariant.id) {
+            pVariant.ingredients.map(async (ing: any) => {
+              const updateCount =
+                Number(ing.ingredient.variantID.count) -
+                Number(ing.count) * Number(pObject.count);
+
+              const updatedIngVariant = await updateIngredientVariantById(
+                ing.ingredient.variantID.id,
+                {
+                  count: updateCount,
+                },
+              );
+            });
+          }
+        });
+      });
+
       const order = await createOrder({
         ...orderParams,
       });
 
       console.log("ORDER SUCCESS!!!");
+      return res.status(200).json(order);
     } catch (error) {
       console.log(error);
       return res.sendStatus(500);

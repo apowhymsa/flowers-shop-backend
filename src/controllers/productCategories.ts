@@ -27,10 +27,21 @@ export const getById = async (req: express.Request, res: express.Response) => {
   }
 };
 export const getAll = async (req: express.Request, res: express.Response) => {
-  const { limit } = req.query;
+  const { limit, page } = req.query;
   try {
-    const productCategories = await getProductCategories().limit(Number(limit));
-    return res.status(200).json(productCategories).end();
+    const productCategories = await getProductCategories()
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit))
+      .exec();
+
+    const productCategoriesCount = await getProductCategories()
+      .countDocuments()
+      .exec();
+
+    return res
+      .status(200)
+      .json({ categories: productCategories, count: productCategoriesCount })
+      .end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
