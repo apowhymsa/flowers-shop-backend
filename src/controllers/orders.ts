@@ -109,6 +109,8 @@ export const getById = async (req: express.Request, res: express.Response) => {
       })
       .exec();
 
+    console.log(order);
+
     return res.status(200).json(order);
   } catch (error) {
     console.log(error);

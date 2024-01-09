@@ -45,9 +45,9 @@ export const startMailing = async (
 ) => {
   const emailTemplate = await getEmailTemplate();
 
-  const { htmlData } = req.body;
+  const { htmlData, title } = req.body;
 
-  if (!htmlData) {
+  if (!htmlData || !title) {
     return res.sendStatus(403);
   }
 
@@ -61,18 +61,18 @@ export const startMailing = async (
   });
   const mailOptions = {
     from: "clumbaeshop@gmail.com",
-    to: ["apowhymsa@gmail.com", "raizerrevolt@gmail.com"],
-    subject: "Тестовая тема письма",
+    to: ["apowhymsa@gmail.com"],
+    subject: title,
     html: renderedTemplate,
     attachments: [
       {
         filename: "clumba-logo.png",
-        href: "https://d9zyg9-3001.csb.app/images/clumba-logo.png",
+        href: "http://localhost:3001/images/clumba-logo.png",
         cid: "unique-logo@nodemailer.com",
       },
       {
         filename: "icons8-instagram.png",
-        href: "https://d9zyg9-3001.csb.app/images/icons8-instagram.png",
+        href: "http://localhost:3001/images/icons8-instagram.png",
         cid: "unique-inst@nodemailer.com",
       },
       // {
