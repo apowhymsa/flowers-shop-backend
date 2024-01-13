@@ -4,6 +4,7 @@ import {
     getIngredientCategories,
     getIngredientCategoryById, getIngredientCategoryByTitle, updateIngredientCategoryById
 } from "../database/schemes/ingredientCategories";
+import {getIngredientByCategoryId} from "../database/schemes/ingredients";
 
 export const updateById = async (req: express.Request, res: express.Response) => {
     try {
@@ -38,6 +39,12 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
 
         if (!id) {
             return res.sendStatus(403);
+        }
+
+        const foundIngredientsById = await getIngredientByCategoryId(id);
+
+        if (foundIngredientsById) {
+            return res.sendStatus(409);
         }
 
         const ingredientCategory = await deleteIngredientCategoryById(id);

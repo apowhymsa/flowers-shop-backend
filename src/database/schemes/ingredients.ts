@@ -15,6 +15,7 @@ export const getIngredients = () => IngredientModel.find({});
 export const getIngredientByTitle = (title: string) => IngredientModel.findOne({title})
 export const getIngredientById = (id: string) => IngredientModel.findById(id);
 export const getIngredientsByCategoryId = (cId: string) => IngredientModel.find({categoryID: cId});
+export const getIngredientByCategoryId = (cId: string) => IngredientModel.findOne({categoryID: cId});
 // export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({
 //     'authentication.sessionToken': sessionToken
 // });

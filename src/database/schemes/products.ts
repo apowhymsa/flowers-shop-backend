@@ -43,6 +43,10 @@ export const ProductModel = mongoose.model("Product", ProductSchema);
 export const getProducts = (filter: any) => ProductModel.find(filter);
 export const getProductsByCategoryId = (id: string) =>
   ProductModel.find({ categoryID: id });
+export const getProductByCategoryId = (cId: string) => ProductModel.findOne({categoryID: cId});
+export const getProductByIngredientId = (iId: string) => ProductModel.findOne({
+  'variants.ingredients.ingredient.id': iId
+});
 export const getProductById = (id: string) => ProductModel.findById(id);
 export const getProductsByIds = (ids: string[]) =>
   ProductModel.find().where("_id").in(ids);

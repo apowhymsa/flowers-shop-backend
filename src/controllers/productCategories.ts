@@ -7,7 +7,7 @@ import {
   getProductCategoryByTitle,
   updateProductCategoryById,
 } from "../database/schemes/productCategories";
-import { getProductById } from "../database/schemes/products";
+import {getProductByCategoryId, getProductById} from "../database/schemes/products";
 import path from "path";
 import * as fs from "fs/promises";
 
@@ -57,6 +57,12 @@ export const deleteById = async (
 
     if (!id) {
       return res.sendStatus(403);
+    }
+
+    const foundProduct = await getProductByCategoryId(id);
+
+    if (foundProduct) {
+      return res.sendStatus(409);
     }
 
     const productCategory = await deleteProductCategoryById(id);

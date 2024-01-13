@@ -14,6 +14,7 @@ import {
 import path from "path";
 import fs from "fs/promises";
 import {getProductCategoryById} from "../database/schemes/productCategories";
+import {getProductByIngredientId} from "../database/schemes/products";
 
 export const deleteById = async (req: express.Request, res: express.Response) => {
     try {
@@ -21,6 +22,12 @@ export const deleteById = async (req: express.Request, res: express.Response) =>
 
         if (!id) {
             return res.sendStatus(403);
+        }
+
+        const foundProduct = await getProductByIngredientId(id);
+
+        if (foundProduct) {
+            return res.sendStatus(409);
         }
 
         const deletedIngredient = await deleteIngredientById(id);
