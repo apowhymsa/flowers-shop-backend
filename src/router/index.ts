@@ -10,6 +10,7 @@ import comments from "./comments";
 import orders from "./orders";
 import payment from "./payment";
 import mailing from "./mailing";
+import delivery from "./delivery";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ export default (): express.Router => {
   orders(router);
   payment(router);
   mailing(router);
+  delivery(router);
 
   return router;
 };

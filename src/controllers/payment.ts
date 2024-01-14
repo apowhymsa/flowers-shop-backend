@@ -65,8 +65,8 @@ export const createPaymentURL = async (
     }),
     public_key: process.env.LIQPAY_PUBLIC_KEY,
     // private_key: process.env.LIQPAY_PRIVATE_KEY,
-    server_url: "https://154d-178-213-6-237.ngrok-free.app/payment/callback",
-    result_url: "https://154d-178-213-6-237.ngrok-free.app/result",
+    server_url: `http://185.69.155.96:3001/payment/callback`,
+    result_url: "http://185.69.155.96:3001/result",
   };
 
   const data = Buffer.from(JSON.stringify(params)).toString("base64");

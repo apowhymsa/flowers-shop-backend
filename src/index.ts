@@ -15,13 +15,14 @@ import fs from "fs";
 import { Server } from "socket.io";
 import { OrderModel } from "./database/schemes/orders";
 import { startMailing } from "./helpers";
+import {getDeliveryPrice} from "./controllers/delivery";
+import {getCurrentDeliveryPrice} from "./database/schemes/delivery";
 
 const app = express();
 
 app.use(
   cors({
-    // origin: 'https://clumba-web-shop.vercel.app',
-    origin: 'http://localhost:3000',
+    origin: [process.env.FRONT_URL],
     credentials: true,
   }),
 );
@@ -34,7 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: [process.env.FRONT_URL],
     credentials: true,
   },
 });
@@ -48,8 +49,9 @@ changeStream.on("change", (change) => {
   }
 });
 
-server.listen(process.env["PORT"], () =>
-  console.log(`Server running: ${process.env["PORT"]}`),
+server.listen(process.env["PORT"], async () => {
+  console.log(`Server running: ${process.env["PORT"]}`);
+}
 );
 
 app.use("/", router());
