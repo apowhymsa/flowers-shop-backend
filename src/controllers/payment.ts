@@ -61,12 +61,13 @@ export const createPaymentURL = async (
       }),
       phone: additionalData.phone,
       shippingAddress: additionalData.shippingAddress,
+      deliveryTime: additionalData.deliveryTime,
       name: additionalData.name,
     }),
     public_key: process.env.LIQPAY_PUBLIC_KEY,
     // private_key: process.env.LIQPAY_PRIVATE_KEY,
-    server_url: `http://185.69.155.96:3001/payment/callback`,
-    result_url: "http://185.69.155.96:3001/result",
+    server_url: `https://9880-178-213-4-41.ngrok-free.app/payment/callback`,
+    result_url: "https://9880-178-213-4-41.ngrok-free.app/result",
   };
 
   const data = Buffer.from(JSON.stringify(params)).toString("base64");
@@ -133,6 +134,7 @@ export const callbackResult = async (
       products: JSON.parse(info).products,
       userFullName: JSON.parse(info).name,
       shippingAddress: JSON.parse(info).shippingAddress,
+      deliveryTime: JSON.parse(info).deliveryTime,
       description: description,
       payment: {
         status: status === "success",

@@ -34,6 +34,7 @@ export const create = async (req: express.Request, res: express.Response) => {
     userFullName,
     shippingAddress,
     products,
+      deliveryTime,
     payment,
   } = req.body;
 
@@ -43,7 +44,8 @@ export const create = async (req: express.Request, res: express.Response) => {
     !phoneNumber ||
     !userFullName ||
     !shippingAddress ||
-    !products
+    !products ||
+      !deliveryTime
   ) {
     return res.sendStatus(403);
   }
