@@ -8,6 +8,7 @@ import {
   updateProductById,
 } from "../database/schemes/products";
 import { updateIngredientVariantById } from "../database/schemes/ingredientVariants";
+import nodemailer from "nodemailer";
 
 const str_to_sign = function str_to_sign(str: string) {
   if (typeof str !== "string") {
@@ -66,8 +67,8 @@ export const createPaymentURL = async (
     }),
     public_key: process.env.LIQPAY_PUBLIC_KEY,
     // private_key: process.env.LIQPAY_PRIVATE_KEY,
-    server_url: `https://9880-178-213-4-41.ngrok-free.app/payment/callback`,
-    result_url: "https://9880-178-213-4-41.ngrok-free.app/result",
+    server_url: `https://a0be-178-213-6-10.ngrok-free.app/payment/callback`,
+    result_url: "https://a0be-178-213-6-10.ngrok-free.app/result",
   };
 
   const data = Buffer.from(JSON.stringify(params)).toString("base64");
@@ -176,7 +177,24 @@ export const callbackResult = async (
         ...orderParams,
       });
 
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "clumbaeshop@gmail.com",
+          pass: "xdej fxbw gslo iwnt",
+        },
+      });
+
+      const mailOptions = {
+        from: "clumbaeshop@gmail.com",
+        to: ["clumbaeshop@gmail.com"],
+        subject: `Нове замовлення №${order.payment.liqpayPaymentID}`,
+        text: 'Test Text'
+      };
+
+      transporter.sendMail(mailOptions).catch((error) => console.log(error));
       console.log("ORDER SUCCESS!!!");
+
       return res.status(200).json(order);
     } catch (error) {
       console.log(error);

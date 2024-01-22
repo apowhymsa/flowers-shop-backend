@@ -47,7 +47,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     await user.save();
 
     res.cookie("USER-AUTH", user.authentication.sessionToken, {
-      domain: "d9zyg9-3001.csb.app",
+      domain: "localhost",
       path: "/",
     });
 

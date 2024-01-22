@@ -7,7 +7,7 @@ const ProductSchema = new mongoose.Schema({
     ref: "ProductCategory",
     required: true,
   },
-  isAvailable: { type: Boolean },
+  isNotVisible: { type: Boolean },
   image: { type: String, required: true },
   variants: [
     {
@@ -42,7 +42,7 @@ export const ProductModel = mongoose.model("Product", ProductSchema);
 //'variants.ingredients.ingredient.id', 'variants.ingredients.ingredient.variantID'
 export const getProducts = (filter: any) => ProductModel.find(filter);
 export const getProductsByCategoryId = (id: string) =>
-  ProductModel.find({ categoryID: id });
+  ProductModel.find({ categoryID: id});
 export const getProductByCategoryId = (cId: string) => ProductModel.findOne({categoryID: cId});
 export const getProductByIngredientId = (iId: string) => ProductModel.findOne({
   'variants.ingredients.ingredient.id': iId
@@ -52,8 +52,8 @@ export const getProductsByIds = (ids: string[]) =>
   ProductModel.find().where("_id").in(ids);
 export const getProductByTitle = (title: string) =>
   ProductModel.findOne({ title });
-export const getProductsByTitleIncludes = (searchTitle: string) =>
-  ProductModel.find({ title: { $regex: searchTitle, $options: "i" } });
+export const getProductsByTitleIncludes = (searchTitle: string, onlyVisible: any) =>
+  ProductModel.find({ title: { $regex: searchTitle, $options: "i" }, isNotVisible: onlyVisible ? false : { $in: [true, false] }});
 export const createProduct = (values: Record<string, any>) =>
   new ProductModel(values)
     .save()

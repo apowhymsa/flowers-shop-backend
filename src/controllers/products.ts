@@ -21,7 +21,7 @@ export const updateById = async (
 ) => {
   try {
     const { id } = req.params;
-    const { title, categoryID, variants, isNewImage, image } = req.body;
+    const { title, categoryID, variants, isNewImage, image, isNotVisible } = req.body;
 
     if (!id || !title || !categoryID || !variants) {
       return res.sendStatus(403);
@@ -41,13 +41,14 @@ export const updateById = async (
 
       const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
 
-      await fs.unlink(imagePath).then(() => console.log("deleted"));
+      fs.unlink(imagePath).then(() => console.log("deleted")).catch((e) => console.error('delete image error', e));
     }
 
     const product = await updateProductById(id, {
       title,
       categoryID,
       variants,
+      isNotVisible,
       image: isNewImage ? req.file.filename : image,
     })
       .populate(["categoryID"])
@@ -122,7 +123,7 @@ export const deleteById = async (
     const product = await deleteProductById(id);
     const imageName = product.toObject().image;
     const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
-    await fs.unlink(imagePath).then(() => console.log("deleted"));
+    fs.unlink(imagePath).then(() => console.log("deleted")).catch((e) => console.log('delete image error', e));
 
     return res.status(200).json(product).end();
   } catch (error) {
@@ -154,13 +155,13 @@ export const searchByTitleIncludes = async (
   req: express.Request,
   res: express.Response,
 ) => {
-  const { includes } = req.query;
+  const { includes, onlyVisible } = req.query;
 
   if (!includes) {
     return res.sendStatus(403);
   }
 
-  const foundProducts = await getProductsByTitleIncludes(includes.toString());
+  const foundProducts = await getProductsByTitleIncludes(includes.toString(), onlyVisible);
 
   return res.status(200).json(foundProducts);
 };
@@ -178,23 +179,28 @@ export const getNew = async (req: express.Request, res: express.Response) => {
   // }
 };
 export const getAll = async (req: express.Request, res: express.Response) => {
-  const { limit, page, sort, categories, price } = req.query;
+  const { limit, page, sort, categories, price, onlyVisible } = req.query;
 
   let categoriesFilter = {};
   let priceFilter = {};
   try {
     const priceArray = (price as string).split("-");
-    priceFilter = { $gte: Number(priceArray[0]), $lte: Number(priceArray[1]) };
+    priceFilter = { 'variants.0.price': { $gte: Number(priceArray[0]), $lte: Number(priceArray[1]) }};
+
+    console.log('priceFilter', priceFilter);
 
     if (categories !== "all") {
       const categoriesArray = (categories as string).split(",");
       categoriesFilter = { categoryID: { $in: categoriesArray } };
     }
 
-    const products = await getProducts({
+    const query = {
       ...categoriesFilter,
-      "variants.price": priceFilter,
-    })
+      ...priceFilter,
+      isNotVisible: onlyVisible ? false : { $in: [true, false] }
+    }
+
+    const products = await getProducts(query)
       .sort({ _id: sort === "asc" ? 1 : -1 })
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit))
@@ -204,27 +210,12 @@ export const getAll = async (req: express.Request, res: express.Response) => {
         "variants.ingredients.ingredient.variantID",
       ])
       .exec();
-    // if (limit && page) {
-    //   if (Number(page) > 1) {
-    //     products = await getProducts()
-    //       .skip((Number(page) - 1) * Number(limit))
-    //       .limit(Number(limit))
-    //       .populate(["categoryID"])
-    //       .exec();
-    //   } else {
-    //     products = await getProducts()
-    //       .limit(Number(limit))
-    //       .populate(["categoryID"])
-    //       .exec();
-    //   }
-    // } else {
-    //   products = await getProducts().populate(["categoryID"]).exec();
-    // }
 
-    const productsCount = await getProducts({
-      ...categoriesFilter,
-      "variants.price": priceFilter,
-    })
+    // const tmp: any = await getProducts(query).explain("executionStats");
+    //
+    // console.log('explain', tmp.executionStats.executionStages.filter['$and']);
+
+    const productsCount = await getProducts(query)
       .countDocuments()
       .exec();
 
@@ -240,7 +231,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
 
 export const create = async (req: express.Request, res: express.Response) => {
   try {
-    const { title, categoryID, variants } = req.body;
+    const { title, categoryID, variants, isNotVisible } = req.body;
     const image = req.file.path;
 
     if (!title || !categoryID || !variants || !image) {
@@ -257,6 +248,7 @@ export const create = async (req: express.Request, res: express.Response) => {
       title,
       categoryID,
       variants,
+      isNotVisible,
       image: req.file.filename,
     });
 
