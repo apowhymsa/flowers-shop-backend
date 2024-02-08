@@ -7,6 +7,11 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: { type: String, required: true },
     avatar: { type: String, required: true },
   },
+  promo: {
+    ordersSummary: {type: Number, required: true, default: 0},
+    bonuses: {type: Number, required: true, default: 0},
+    bonusesPercent: {type: Number, required: true, default: 2}
+  },
   authentication: {
     password: { type: String, required: true, select: false },
     salt: { type: String, select: false },

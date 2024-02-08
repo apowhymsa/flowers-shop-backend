@@ -5,10 +5,12 @@ import { createOrder } from "../database/schemes/orders";
 import moment from "moment-timezone";
 import {
   getProductById,
+  ProductModel,
   updateProductById,
 } from "../database/schemes/products";
 import { updateIngredientVariantById } from "../database/schemes/ingredientVariants";
 import nodemailer from "nodemailer";
+import { updateUserById } from "../database/schemes/users";
 
 const str_to_sign = function str_to_sign(str: string) {
   if (typeof str !== "string") {
@@ -35,12 +37,12 @@ export const result = async (req: express.Request, res: express.Response) => {
       status === "success"
         ? '<div style="color: green">SUCCESS</div>'
         : '<div style="color: red">ERROR</div>'
-    }`,
+    }`
   );
 };
 export const createPaymentURL = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   const { amount, description, additionalData } = req.body;
 
@@ -53,6 +55,10 @@ export const createPaymentURL = async (
     description: description,
     info: JSON.stringify({
       userID: additionalData.userID,
+      amountWoDeliveryPrice: additionalData.amountWoDeliveryPrice,
+      deliveryPrice: additionalData.deliveryPrice,
+      bonuses: additionalData.bonuses,
+      comment: additionalData.comment,
       products: additionalData.products.map((product: any) => {
         return {
           count: product.count,
@@ -65,15 +71,14 @@ export const createPaymentURL = async (
       deliveryTime: additionalData.deliveryTime,
       name: additionalData.name,
     }),
-    public_key: process.env.LIQPAY_PUBLIC_KEY,
-    // private_key: process.env.LIQPAY_PRIVATE_KEY,
-    server_url: `https://a0be-178-213-6-10.ngrok-free.app/payment/callback`,
-    result_url: "https://a0be-178-213-6-10.ngrok-free.app/result",
+    public_key: process.env.LIQPAY_PUBLIC_KEY, // private_key: process.env.LIQPAY_PRIVATE_KEY,
+    server_url: `https://b0e5-178-213-1-222.ngrok-free.app/payment/callback`,
+    result_url: "https://b0e5-178-213-1-222.ngrok-free.app/result",
   };
 
   const data = Buffer.from(JSON.stringify(params)).toString("base64");
   const signature = str_to_sign(
-    process.env.LIQPAY_PRIVATE_KEY + data + process.env.LIQPAY_PRIVATE_KEY,
+    process.env.LIQPAY_PRIVATE_KEY + data + process.env.LIQPAY_PRIVATE_KEY
   );
 
   axios
@@ -87,7 +92,7 @@ export const createPaymentURL = async (
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-      },
+      }
     )
     .then((data) => {
       const paymentURL = data.request.res.responseUrl;
@@ -98,14 +103,14 @@ export const createPaymentURL = async (
         JSON.stringify({
           errorCode: error.code,
           errorNo: error.errno,
-        }),
-      ),
+        })
+      )
     );
 };
 
 export const callbackResult = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   const encodedData = req.body.data;
   const reqSignature = req.body.signature;
@@ -122,7 +127,7 @@ export const callbackResult = async (
   const origSig = str_to_sign(
     process.env.LIQPAY_PRIVATE_KEY +
       encodedData +
-      process.env.LIQPAY_PRIVATE_KEY,
+      process.env.LIQPAY_PRIVATE_KEY
   );
 
   if (reqSignature === origSig && status === "success") {
@@ -136,10 +141,13 @@ export const callbackResult = async (
       userFullName: JSON.parse(info).name,
       shippingAddress: JSON.parse(info).shippingAddress,
       deliveryTime: JSON.parse(info).deliveryTime,
+      comment: JSON.parse(info).comment,
       description: description,
       payment: {
         status: status === "success",
-        amount: amount,
+        bonuses: JSON.parse(info).bonuses,
+        amount: JSON.parse(info).amountWoDeliveryPrice,
+        deliveryPrice: JSON.parse(info).deliveryPrice,
         liqpayPaymentID: payment_id,
       },
       createdAt: date,
@@ -166,7 +174,7 @@ export const callbackResult = async (
                 ing.ingredient.variantID.id,
                 {
                   count: updateCount,
-                },
+                }
               );
             });
           }
@@ -177,6 +185,29 @@ export const callbackResult = async (
         ...orderParams,
       });
 
+      console.log("order", order);
+
+      const user = await updateUserById(orderParams.userID, {
+        promo: {
+          ordersSummary: Math.round(
+            (order.userID as any).promo.ordersSummary +
+              Number(orderParams.payment.amount)
+          ),
+          bonuses: Math.round(
+            (Number(orderParams.payment.amount) / 100) *
+              (order.userID as any).promo.bonusesPercent +
+              (order.userID as any).promo.bonuses -
+              Number(orderParams.payment.bonuses)
+          ),
+          bonusesPercent:
+            (order.userID as any).promo.ordersSummary +
+              Number(orderParams.payment.amount) <
+            10000
+              ? 2
+              : 4,
+        },
+      });
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -185,12 +216,39 @@ export const callbackResult = async (
         },
       });
 
+      const att = order.products.map((product, index) => {
+        return {
+          filename: (product.product_id as any).image,
+          href: `http://localhost:3001/images/${
+            (product.product_id as any).image
+          }`,
+          cid: `${(product.product_id as any).image}-${index}@nodemailer.com`,
+        };
+      });
+
       const mailOptions = {
         from: "clumbaeshop@gmail.com",
         to: ["clumbaeshop@gmail.com"],
         subject: `Нове замовлення №${order.payment.liqpayPaymentID}`,
-        text: 'Test Text'
+        html: `${order.products.map((product, index) => {
+          return `
+                    <tr>
+                    <td style="height: 125px; width: 125px; max-height: 125px; max-width: 125px; padding-right: 12px"><img style="width: 100%; height: 100%" src="cid:${
+                      att[index].cid
+                    }" alt="${att[index].filename}" /></td>
+                    <td>
+                    <p>Назва товару: ${(product.product_id as any).title}</p>
+                    <p>Варіант товару: ${product.productVariant.title}</p>
+                    <p>Кількість товару: ${product.count}</p>
+                    </td>
+                    </tr>
+                    <hr style="width: 100%; display: block"/>
+                    `;
+        })}`,
+        attachments: [...att],
       };
+
+      console.log("attachments", att);
 
       transporter.sendMail(mailOptions).catch((error) => console.log(error));
       console.log("ORDER SUCCESS!!!");

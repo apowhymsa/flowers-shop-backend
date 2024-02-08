@@ -9,10 +9,11 @@ import {
 } from "../database/schemes/users";
 import { ProductModel } from "../database/schemes/products";
 import { authentication, random } from "../helpers";
+import { deleteOrdersByUserId } from "../database/schemes/orders";
 
 export const updateById = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   const { id } = req.params;
   const { data } = req.body;
@@ -31,7 +32,7 @@ export const updateById = async (
     } else {
       console.log("here", data);
       const user = await getUserById(id).select(
-        "+authentication.salt +authentication.password",
+        "+authentication.salt +authentication.password"
       );
 
       if (!user) {
@@ -49,10 +50,10 @@ export const updateById = async (
         return res.sendStatus(409);
       }
 
-      if (data.password.new && data.password.current) {
+      if (data.password?.new && data.password?.current) {
         const expectedHash = authentication(
           user.authentication.salt,
-          data.password.current,
+          data.password.current
         );
         console.log(user.authentication.password, " ::: ", expectedHash);
         if (user.authentication.password !== expectedHash) {
@@ -61,7 +62,7 @@ export const updateById = async (
       }
 
       const salt = random();
-      const isChangePassword = data.password.current && data.password.new;
+      const isChangePassword = data.password?.current && data.password?.new;
 
       const newUserData = await setCart(id, {
         email: data.email,
@@ -76,6 +77,17 @@ export const updateById = async (
             : user.authentication.password,
           salt: isChangePassword ? salt : user.authentication.salt,
         },
+        promo: {
+          ordersSummary: data.isUpdateProfileFromAdmin
+            ? data.promo.ordersSummary
+            : user.promo.ordersSummary,
+          bonuses: data.isUpdateProfileFromAdmin
+            ? data.promo.bonuses
+            : user.promo.bonuses,
+          bonusesPercent: data.isUpdateProfileFromAdmin
+            ? data.promo.bonusesPercent
+            : user.promo.bonusesPercent,
+        },
       });
 
       console.log(newUserData);
@@ -89,11 +101,13 @@ export const updateById = async (
 };
 export const deleteById = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   const { id } = req.params;
   try {
     const user = await deleteUserById(id);
+
+    const deletedOrders = await deleteOrdersByUserId(user.id);
 
     return res.status(200).json(user).end();
   } catch (error) {
@@ -142,7 +156,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
 };
 export const getByEmail = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const { email } = req.params;
