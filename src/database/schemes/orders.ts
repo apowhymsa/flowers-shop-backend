@@ -36,6 +36,7 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isViewed: { type: Boolean, required: true, default: false },
 });
 
 export const OrderModel = mongoose.model("Order", OrderSchema);
@@ -65,5 +66,7 @@ export const createOrder = (values: Record<any, any>) =>
   );
 export const updateOrderStatusById = (id: string, status: string) =>
   OrderModel.findByIdAndUpdate(id, { status: status });
+export const updateOrderById = (id: string, values: Record<any, any>) =>
+  OrderModel.findByIdAndUpdate(id, values, { new: true });
 export const deleteOrdersByUserId = (uId: string) =>
   OrderModel.deleteMany({ userID: uId });

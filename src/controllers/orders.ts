@@ -5,6 +5,7 @@ import {
   getOrderById,
   getUserOrders,
   updateOrderStatusById,
+  updateOrderById,
 } from "../database/schemes/orders";
 
 import { ProductModel } from "../database/schemes/products";
@@ -144,7 +145,8 @@ export const getByUserId = async (
 export const getById = async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
-    const order = await getOrderById(id)
+    const { ignoreViewed } = req.query;
+    let order = await getOrderById(id)
       .populate({
         path: "products.product_id",
         model: ProductModel, // Замените Product на ваш объект модели Product
@@ -160,6 +162,27 @@ export const getById = async (req: express.Request, res: express.Response) => {
         ],
       })
       .exec();
+
+    if (!ignoreViewed && !order.isViewed) {
+      order = await updateOrderById(id, {
+        isViewed: true,
+      })
+        .populate({
+          path: "products.product_id",
+          model: ProductModel, // Замените Product на ваш объект модели Product
+          populate: [
+            {
+              path: "variants.ingredients.ingredient.id",
+              model: "Ingredient", // Замените Ingredient на ваш объект модели Ingredient
+            },
+            {
+              path: "variants.ingredients.ingredient.variantID",
+              model: "IngredientVariant", // Замените Ingredient на ваш объект модели Ingredient
+            },
+          ],
+        })
+        .exec();
+    }
 
     console.log(order);
 
@@ -215,7 +238,11 @@ export const getAll = async (req: express.Request, res: express.Response) => {
       .populate(["products.product_id"])
       .exec();
 
-    return res.status(200).json(orders);
+    const nowViewedOrders = await getOrders({
+      isViewed: false,
+    });
+
+    return res.status(200).json({ orders, nowViewedOrders });
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);

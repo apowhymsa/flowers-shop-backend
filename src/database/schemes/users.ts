@@ -8,9 +8,9 @@ const UserSchema = new mongoose.Schema({
     avatar: { type: String, required: true },
   },
   promo: {
-    ordersSummary: {type: Number, required: true, default: 0},
-    bonuses: {type: Number, required: true, default: 0},
-    bonusesPercent: {type: Number, required: true, default: 2}
+    ordersSummary: { type: Number, required: true, default: 0 },
+    bonuses: { type: Number, required: true, default: 0 },
+    bonusesPercent: { type: Number, required: true, default: 2 },
   },
   authentication: {
     password: { type: String, required: true, select: false },
