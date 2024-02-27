@@ -12,11 +12,12 @@ import cors from "cors";
 import * as process from "process";
 import router from "./router";
 import fs from "fs";
+const fileUpload = require("express-fileupload");
 import { Server } from "socket.io";
 import { OrderModel } from "./database/schemes/orders";
 import { startMailing } from "./helpers";
-import {getDeliveryPrice} from "./controllers/delivery";
-import {getCurrentDeliveryPrice} from "./database/schemes/delivery";
+import { getDeliveryPrice } from "./controllers/delivery";
+import { getCurrentDeliveryPrice } from "./database/schemes/delivery";
 
 const app = express();
 
@@ -24,13 +25,14 @@ app.use(
   cors({
     origin: [process.env.FRONT_URL],
     credentials: true,
-  }),
+  })
 );
 
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -51,7 +53,6 @@ changeStream.on("change", (change) => {
 
 server.listen(process.env["PORT"], async () => {
   console.log(`Server running: ${process.env["PORT"]}`);
-}
-);
+});
 
 app.use("/", router());

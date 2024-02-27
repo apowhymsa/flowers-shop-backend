@@ -9,7 +9,7 @@ const OrderSchema = new mongoose.Schema({
   userFullName: { type: String, required: true },
   shippingAddress: { type: String, required: true },
   deliveryTime: { type: String, required: true },
-  comment: { type: String, required: true },
+  comment: { type: String, required: true, default: "" },
   products: [
     {
       product_id: { type: Schema.Types.ObjectId, ref: "Product" },

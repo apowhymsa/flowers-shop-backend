@@ -7,7 +7,10 @@ import {
   getProductCategoryByTitle,
   updateProductCategoryById,
 } from "../database/schemes/productCategories";
-import {getProductByCategoryId, getProductById} from "../database/schemes/products";
+import {
+  getProductByCategoryId,
+  getProductById,
+} from "../database/schemes/products";
 import path from "path";
 import * as fs from "fs/promises";
 
@@ -50,7 +53,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
 
 export const deleteById = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const { id } = req.params;
@@ -67,8 +70,22 @@ export const deleteById = async (
 
     const productCategory = await deleteProductCategoryById(id);
     const imageName = productCategory.toObject().image;
-    const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
-    await fs.unlink(imagePath).then(() => console.log("deleted"));
+    const imagePathOriginal = path.resolve(
+      __dirname,
+      `../../uploads/${imageName}`
+    );
+    const imagePathMinify = path.resolve(
+      __dirname,
+      `../../uploads/m_${imageName}`
+    );
+
+    fs.unlink(imagePathOriginal)
+      .then(() => console.log("deleted"))
+      .catch((e) => console.error("delete image error", e));
+
+    fs.unlink(imagePathMinify)
+      .then(() => console.log("deleted"))
+      .catch((e) => console.error("delete image error", e));
 
     return res.status(200).json(productCategory).end();
   } catch (error) {
@@ -78,12 +95,11 @@ export const deleteById = async (
 };
 export const updateById = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const { id } = req.params;
     const { title, isNewImage, image } = req.body;
-    // const image = req.file.path;
 
     console.log(title, isNewImage, image);
 
@@ -103,14 +119,27 @@ export const updateById = async (
       const productCategory = await getProductCategoryById(id);
       const imageName = productCategory.toObject().image;
 
-      const imagePath = path.resolve(__dirname, `../../uploads/${imageName}`);
+      const imagePathOriginal = path.resolve(
+        __dirname,
+        `../../uploads/${imageName}`
+      );
+      const imagePathMinify = path.resolve(
+        __dirname,
+        `../../uploads/m_${imageName}`
+      );
 
-      await fs.unlink(imagePath).then(() => console.log("deleted"));
+      fs.unlink(imagePathOriginal)
+        .then(() => console.log("deleted"))
+        .catch((e) => console.error("delete image error", e));
+
+      fs.unlink(imagePathMinify)
+        .then(() => console.log("deleted"))
+        .catch((e) => console.error("delete image error", e));
     }
 
     const productCategory = await updateProductCategoryById(id, {
       title,
-      image: isNewImage ? req.file.filename : image,
+      image: isNewImage ? (req.files as any).image.name : image,
     });
 
     return res.status(200).json(productCategory).end();
@@ -122,7 +151,7 @@ export const updateById = async (
 export const create = async (req: express.Request, res: express.Response) => {
   try {
     const { title } = req.body;
-    const image = req.file.path;
+    const image = (req.files as any)?.image;
 
     if (!title || !image) {
       return res.sendStatus(403);
@@ -136,7 +165,7 @@ export const create = async (req: express.Request, res: express.Response) => {
 
     const productCategory = await createProductCategory({
       title,
-      image: req.file.filename,
+      image: image.name,
     });
 
     return res.status(200).json(productCategory).end();
