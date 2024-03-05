@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "clumbaeshop@gmail.com",
-    pass: "xdej fxbw gslo iwnt",
+    pass: process.env.NODEMAILER_PASSWORD,
   },
 });
 
@@ -41,7 +41,7 @@ async function getEmailTemplate() {
 // req: express.Request, res: express.Response
 export const startMailing = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   const emailTemplate = await getEmailTemplate();
 

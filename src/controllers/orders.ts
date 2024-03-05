@@ -44,7 +44,7 @@ export const update = async (req: express.Request, res: express.Response) => {
       service: "gmail",
       auth: {
         user: "clumbaeshop@gmail.com",
-        pass: "xdej fxbw gslo iwnt",
+        pass: process.env.NODEMAILER_PASSWORD,
       },
     });
 

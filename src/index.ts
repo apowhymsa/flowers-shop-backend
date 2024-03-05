@@ -23,7 +23,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [process.env.FRONT_URL],
+    origin: ["http://localhost:3000"],
     credentials: true,
   })
 );
@@ -37,7 +37,7 @@ app.use(fileUpload());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONT_URL],
+    origin: ["http://localhost:3000"],
     credentials: true,
   },
 });

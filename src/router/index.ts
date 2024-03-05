@@ -11,6 +11,7 @@ import orders from "./orders";
 import payment from "./payment";
 import mailing from "./mailing";
 import delivery from "./delivery";
+import admins from "./admins";
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ export default (): express.Router => {
   payment(router);
   mailing(router);
   delivery(router);
+  admins(router);
 
   return router;
 };

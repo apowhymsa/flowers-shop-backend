@@ -5,6 +5,20 @@ import { getUserBySessionToken } from "../database/schemes/users";
 import sharp from "sharp";
 import path from "path";
 
+export const isLogged = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const token = req.cookies["token"];
+
+  console.log(req.cookies);
+
+  if (!token) return res.sendStatus(401);
+
+  next();
+};
+
 export const isOwner = async (
   req: express.Request,
   res: express.Response,
